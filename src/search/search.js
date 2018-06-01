@@ -3,6 +3,7 @@ import { getToken, getApiUrlBase } from '../config/config';
 import axios from 'axios';
 import List from '../list/list';
 import Error from '../error/error';
+import Loader from '../loader/loader';
 import './search.css';
 
 export default class Search extends Component {
@@ -12,11 +13,14 @@ export default class Search extends Component {
         this.handleSearch = this.handleSearch.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.resetSearch = this.resetSearch.bind(this);
+        this.showLoader = this.showLoader.bind(this);
+        this.hideLoader = this.hideLoader.bind(this);
     }
 
     getDefaultState = () => {
         return {
-            user: '',
+            user: localStorage.getItem('user') || '',
+            showLoader: false,
             list: undefined,
             error: { status: false, message: '' }
         }
@@ -28,9 +32,10 @@ export default class Search extends Component {
 
     handleSearch = async () => {
         this.resetSearch();
+        this.showLoader();
         let error = { ...this.state.error };
         await axios.get(this.getUserRepos(this.state.user)).then(res => {
-            console.log(res)
+            this.resetSearch();
             if(res.status === 200) {
                 let list = res.data;
 
@@ -47,7 +52,16 @@ export default class Search extends Component {
             error.status = true;
             error.message = err.message || 'Ocorreu um erro, por favor tente novamente';
             this.setState({ ...this.state, list: undefined, error });
+            this.hideLoader();
         });
+    }
+
+    showLoader() {
+        this.setState({ ...this.state, showLoader: true });
+    }
+
+    hideLoader() {
+        this.setState({ ...this.state, showLoader: false });
     }
 
     handleChange(e) {
@@ -55,6 +69,7 @@ export default class Search extends Component {
     }
 
     resetSearch() {
+        localStorage.removeItem('user');
         this.setState(this.getDefaultState());
     }
 
@@ -62,7 +77,13 @@ export default class Search extends Component {
 		if(e.key === 'Enter') {
 			this.handleSearch();
 		}
-	}
+    }
+
+    componentWillMount() {
+        if(this.state.user !== '') {
+            this.handleSearch();
+        }
+    }
 
     render() {
         return (
@@ -74,7 +95,8 @@ export default class Search extends Component {
                 <div className="form-group">
                     <button className="btn btn-primary btn-block" type="button" onClick={this.handleSearch}>Buscar</button>
                 </div>
-                { this.state.list ? <List list={this.state.list} /> : null }
+                { this.state.showLoader ? <Loader/> : null }
+                { this.state.list && !this.state.error.status ? <List list={this.state.list} /> : null }
                 { this.state.error.status ? <Error message={this.state.error.message} /> : null }
             </div>
         )

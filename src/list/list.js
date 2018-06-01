@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { getToken, getApiUrlBase } from '../config/config';
 import axios from 'axios';
 import Error from '../error/error';
+import ListItemDetails from '../list-item-details/list-item-details';
+import { Link } from 'react-router-dom';
 
 export default class List extends Component {
     constructor(props) {
@@ -10,18 +12,6 @@ export default class List extends Component {
             list: props.list,
             error: { status: false, message: '' }
         }
-        this.loadCommits = this.loadCommits.bind(this);
-    }
-
-    getUserRepoCommits(repo) {
-        return `${getApiUrlBase()}/repos/${repo.owner.login}/${repo.name}/commits?access_token=${getToken()}&per_page=20`;
-    }
-
-    loadCommits(repo) {
-        console.log(repo);
-        axios.get(this.getUserRepoCommits(repo)).then(res => {
-            console.log(res)
-        });
     }
 
     render() {
@@ -29,7 +19,7 @@ export default class List extends Component {
             <div className="list-container">
                 <ul className="list-group">
                     {this.state.list.map(repo => (
-                        <button key={repo.id} className="list-group-item list-group-item-action" type="button" onClick={() => this.loadCommits(repo)}>{repo.name}</button>
+                        <Link to={{pathname: '/details/' + `${repo.owner.login}/${repo.name}` }} key={repo.id} className="list-group-item">{repo.name}</Link>
                     ))}
                 </ul>
                 { this.state.error.status ? <Error message={this.state.error.message} /> : null }
