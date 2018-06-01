@@ -1,5 +1,5 @@
 export const getToken = () => {
-    return '8c3aa25faeef2a464e724587ff6811c56c799b5d';
+    return '63c463104d758d51edfcd638afd582dffe09b3a5';
 }
 
 export const getApiUrlBase = () => {
