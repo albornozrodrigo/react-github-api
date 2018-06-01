@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getToken, getApiUrlBase } from '../config/config';
+import { getToken, getClientSecret, getClientId, getApiUrlBase } from '../config/config';
 import axios from 'axios';
 import Error from '../error/error';
 import './list-item-details.css';
@@ -23,11 +23,11 @@ class ListItemDetails extends Component {
     }
 
     getUserRepoCommits() {
-        return `${getApiUrlBase()}/repos/${this.state.user}/${this.state.repo}/commits?access_token=${getToken()}&per_page=20`;
+        return `${getApiUrlBase()}/repos/${this.state.user}/${this.state.repo}/commits?client_secret=${getClientSecret()}&client_id=${getClientId()}&per_page=20`;
     }
 
     searchInCommits(term) {
-        return `${getApiUrlBase()}/search/commits?q=repo:${this.state.user}/${this.state.repo}+${term}`;
+        return `${getApiUrlBase()}/search/commits?q=repo:${this.state.user}/${this.state.repo}+${term}&client_secret=${getClientSecret()}&client_id=${getClientId()}`;
     }
 
     loadCommits() {
@@ -57,7 +57,6 @@ class ListItemDetails extends Component {
         let error = { ...this.state.error };
         axios.get(this.searchInCommits(term), {
             headers: {
-                Authorization: `token ${getToken()}`,
                 Accept: 'application/vnd.github.cloak-preview'
             }
         }).then(res => {
@@ -75,7 +74,7 @@ class ListItemDetails extends Component {
             } else {
                 error.status = true;
                 error.message = 'Ocorreu um erro, por favor tente novamente';
-                this.setState({ ...this.state, list: undefined, error });
+                this.setState({ ...this.state, list: undefined, error: { status: false, message: '' } });
             }
             this.hideLoader();
         }, err => {
@@ -111,7 +110,7 @@ class ListItemDetails extends Component {
     }
 
     resetSearch() {
-        this.setState({ ...this.state, search: '' });
+        this.setState({ ...this.state, search: '', list: undefined, error: { status: false, message: '' }  });
         this.loadCommits();
     }
 

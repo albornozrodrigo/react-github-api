@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getToken, getApiUrlBase } from '../config/config';
+import { getToken, getClientSecret, getClientId, getApiUrlBase } from '../config/config';
 import axios from 'axios';
 import List from '../list/list';
 import Error from '../error/error';
@@ -27,7 +27,7 @@ export default class Search extends Component {
     }
 
     getUserRepos(user) {
-        return `${getApiUrlBase()}/users/${user}/repos?access_token=${getToken()}&type=public&sort=updated`;
+        return `${getApiUrlBase()}/users/${user}/repos?client_secret=${getClientSecret()}&client_id=${getClientId()}&type=public&sort=updated`;
     }
 
     handleSearch = async () => {
